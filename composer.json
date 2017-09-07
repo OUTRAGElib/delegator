@@ -1,19 +1,19 @@
 {
     "name": "outragelib/delegator",
+    "description": "Delegator library for OUTRAGElib",
     "type": "library",
-    "description": "OUTRAGElib test",
-    
-    "version": "1.0.1",
- 	
+    "license": "MIT",
     "authors": [
         {
             "name": "David Weston",
-            "email": "westie@typefish.co.uk",
-            "homepage": "http://www.typefish.co.uk"
+            "email": "westie@typefish.co.uk"
         }
     ],
-    
+    "minimum-stability": "dev",
+    "require": {},
     "autoload": {
-        "psr-4": { "OUTRAGElib\\": "./lib" }
+        "psr-4": {
+            "OUTRAGElib\\": "./lib"
+        }
     }
 }
