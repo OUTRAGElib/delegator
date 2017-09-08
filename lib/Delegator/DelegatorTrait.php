@@ -18,9 +18,11 @@ trait DelegatorTrait
 		$call = "getter_".$property;
 		
 		if(method_exists($this, $call))
-			return $this->{$call}();
+			$value = $this->{$call}();
+		else
+			$value = $this->{$property};
 		
-		return $this->{$property};
+		return $value;
 	}
 	
 	
