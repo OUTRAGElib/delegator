@@ -1,10 +1,10 @@
 <?php
-/**
- *	Delegator trait - creating easier ways of complicating code beyond all belief.
- */
 
 
 namespace OUTRAGElib\Delegator;
+
+use \ArrayAccess;
+use \Exception;
 
 
 trait DelegatorTrait
@@ -14,13 +14,17 @@ trait DelegatorTrait
 	 */
 	public function &__get($property)
 	{
-		$return = null;
-		$call = "getter_".$property;
+		$value = null;
 		
-		if(method_exists($this, $call))
-			$value = $this->{$call}();
-		else
-			$value = $this->{$property};
+		if(!empty($property))
+		{
+			$call = "getter_".$property;
+			
+			if(method_exists($this, $call))
+				$value = $this->{$call}();
+			elseif($this instanceof ArrayAccess)
+				$value = $this->offsetGet($property);
+		}
 		
 		return $value;
 	}
@@ -31,12 +35,20 @@ trait DelegatorTrait
 	 */
 	public function __set($property, $value)
 	{
-		$call = "setter_".$property;
+		if(!empty($property))
+		{
+			$call = "setter_".$property;
+			
+			if(method_exists($this, $call))
+				return $this->{$call}($value);
+			
+			if($this instanceof ArrayAccess && $this->offsetExists($property))
+				return $this->offsetSet($property, $value);
+			
+			return $this->{$property} = $value;
+		}
 		
-		if(method_exists($this, $call))
-			return $this->{$call}($value);
-		
-		return $this->{$property} = $value;
+		return false;
 	}
 	
 	
@@ -45,12 +57,26 @@ trait DelegatorTrait
 	 */
 	public function __isset($property)
 	{
-		$call = "isset_".$property;
+		if(!empty($property))
+		{
+			# generic isset check
+			$call = "isset_".$property;
+			
+			if(method_exists($this, $call))
+				return $this->{$call}();
+			
+			# now to see if the value is set?
+			$call = "getter_".$property;
+			
+			if(method_exists($this, $call))
+				return true;
+			
+			# are we messing about with fake arrays?
+			if($this instanceof ArrayAccess)
+				return $this->offsetExists($property);
+		}
 		
-		if(method_exists($this, $call))
-			return $this->{$call}();
-		
-		return isset($this->{$property});
+		return false;
 	}
 	
 	
@@ -59,11 +85,17 @@ trait DelegatorTrait
 	 */
 	public function __unset($property)
 	{
-		$call = "unset_".$property;
-		
-		if(method_exists($this, $call))
-			return $this->{$call}();
-		
-		unset($this->{$property});
+		if(!empty($property))
+		{
+			$call = "unset_".$property;
+			
+			if(method_exists($this, $call))
+				return $this->{$call}();
+			
+			if($this instanceof ArrayAccess)
+				return $this->offsetUnset($property);
+			
+			unset($this->{$property});
+		}
 	}
 }
