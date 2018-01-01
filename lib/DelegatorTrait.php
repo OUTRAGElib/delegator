@@ -22,8 +22,11 @@ trait DelegatorTrait
 			
 			if(method_exists($this, $call))
 				$value = $this->{$call}();
-			elseif($this instanceof ArrayAccess)
-				$value = $this->offsetGet($property);
+			
+			/*
+				elseif($this instanceof ArrayAccess)
+					$value = $this->offsetGet($property);
+			*/
 		}
 		
 		return $value;
@@ -42,8 +45,10 @@ trait DelegatorTrait
 			if(method_exists($this, $call))
 				return $this->{$call}($value);
 			
-			if($this instanceof ArrayAccess && $this->offsetExists($property))
-				return $this->offsetSet($property, $value);
+			/*
+				if($this instanceof ArrayAccess && $this->offsetExists($property))
+					return $this->offsetSet($property, $value);
+			*/
 			
 			return $this->{$property} = $value;
 		}
@@ -63,17 +68,18 @@ trait DelegatorTrait
 			$call = "isset_".$property;
 			
 			if(method_exists($this, $call))
-				return $this->{$call}();
+				return $this->{$call}() && true;
 			
 			# now to see if the value is set?
 			$call = "getter_".$property;
 			
 			if(method_exists($this, $call))
-				return true;
+				return $this->{$call}() !== null;
 			
-			# are we messing about with fake arrays?
-			if($this instanceof ArrayAccess)
-				return $this->offsetExists($property);
+			/*
+				if($this instanceof ArrayAccess)
+					return $this->offsetExists($property);
+			*/
 		}
 		
 		return false;
@@ -92,8 +98,10 @@ trait DelegatorTrait
 			if(method_exists($this, $call))
 				return $this->{$call}();
 			
-			if($this instanceof ArrayAccess)
-				return $this->offsetUnset($property);
+			/*
+				if($this instanceof ArrayAccess)
+					return $this->offsetUnset($property);
+			*/
 			
 			unset($this->{$property});
 		}
